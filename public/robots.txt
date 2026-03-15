@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ofx-converter.netlify.app/sitemap.xml

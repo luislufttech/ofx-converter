@@ -265,6 +265,58 @@ export default function App() {
         <p className="text-center text-slate-600 text-xs mt-6">
           Files are processed locally — nothing is uploaded to any server.
         </p>
+
+        {/* Informational content for SEO */}
+        <div className="mt-12 space-y-8 text-slate-400 text-sm leading-relaxed">
+          <section>
+            <h2 className="text-slate-200 font-semibold text-base mb-2">What is OFX format?</h2>
+            <p>
+              OFX (Open Financial Exchange) is a standardized data format used by banks and
+              personal finance applications to exchange transaction data. It is widely supported
+              by tools like <strong className="text-slate-300">Quicken</strong>, <strong className="text-slate-300">GnuCash</strong>,{" "}
+              <strong className="text-slate-300">YNAB</strong>, and most accounting software, making
+              it the easiest way to import your bank history without manual entry.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-slate-200 font-semibold text-base mb-2">Supported input formats</h2>
+            <ul className="space-y-1 list-disc list-inside marker:text-indigo-500">
+              <li><strong className="text-slate-300">Wise PDF statements</strong> — monthly USD, EUR, and multi-currency exports</li>
+              <li><strong className="text-slate-300">SEPA camt.053 XML</strong> — ISO 20022 bank-to-customer statement format</li>
+              <li><strong className="text-slate-300">Generic XML</strong> — any XML file containing transaction-like nodes</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-slate-200 font-semibold text-base mb-3">Frequently asked questions</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-slate-300 font-medium mb-1">Is this tool free?</h3>
+                <p>Yes, completely free with no sign-up or account required.</p>
+              </div>
+              <div>
+                <h3 className="text-slate-300 font-medium mb-1">Is my financial data safe?</h3>
+                <p>
+                  All conversion happens directly in your browser. Your files are never uploaded
+                  to any server — not even ours. Once you close the tab, nothing is retained.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-slate-300 font-medium mb-1">Which apps accept OFX files?</h3>
+                <p>
+                  Quicken, GnuCash, YNAB, Banktivity, Moneydance, HomeBank, and most other
+                  personal finance and accounting applications support importing OFX files directly.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer className="mt-10 pb-6 text-center text-slate-600 text-xs space-x-4">
+          <span>Files processed locally — never uploaded.</span>
+          <a href="/privacy.html" className="hover:text-slate-400 transition-colors underline underline-offset-2">Privacy Policy</a>
+        </footer>
       </div>
     </div>
   </div>
