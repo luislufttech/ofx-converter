@@ -126,7 +126,7 @@ export default function App() {
         </div>
         <span className="text-white font-semibold text-sm tracking-tight">OFX Converter</span>
         <div className="ml-auto flex items-center gap-4">
-          <a href="/blog/" className="text-slate-400 hover:text-white text-sm transition-colors">Blog</a>
+          <a href={lang === "pt" ? "/blog/pt/" : "/blog/"} className="text-slate-400 hover:text-white text-sm transition-colors">Blog</a>
           <button
             onClick={toggleLang}
             className="text-xs font-semibold px-2 py-1 rounded-md border border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 transition-colors"
