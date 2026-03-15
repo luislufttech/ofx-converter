@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { convertXmlToOfx } from "./converter";
 import { convertPdfToOfx } from "./pdfConverter";
 import { translations } from "./translations";
@@ -21,6 +21,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [lang, setLang] = useState(() => localStorage.getItem("lang") || "en");
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
   const fileInputRef = useRef(null);
 
   const t = translations[lang];
@@ -32,6 +33,18 @@ export default function App() {
       return next;
     });
   };
+
+  const toggleTheme = () => {
+    setTheme((t) => {
+      const next = t === "dark" ? "light" : "dark";
+      localStorage.setItem("theme", next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
   const loadFile = useCallback(
     (file) => {
@@ -116,20 +129,37 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      <header className="border-b border-slate-700 bg-slate-900/60 backdrop-blur px-6 py-3 flex items-center gap-3">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col">
+      <header className="border-b border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur px-6 py-3 flex items-center gap-3">
         <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
-        <span className="text-white font-semibold text-sm tracking-tight">OFX Converter</span>
-        <div className="ml-auto flex items-center gap-4">
-          <a href={lang === "pt" ? "/blog/pt/" : "/blog/"} className="text-slate-400 hover:text-white text-sm transition-colors">Blog</a>
+        <span className="text-slate-900 dark:text-white font-semibold text-sm tracking-tight">OFX Converter</span>
+        <div className="ml-auto flex items-center gap-3">
+          <a href={lang === "pt" ? "/blog/pt/" : "/blog/"} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm transition-colors">Blog</a>
+          <button
+            onClick={toggleTheme}
+            className="w-8 h-8 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-400 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+          </button>
           <button
             onClick={toggleLang}
-            className="text-xs font-semibold px-2 py-1 rounded-md border border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 transition-colors"
+            className="text-xs font-semibold px-2 py-1 rounded-md border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-400 transition-colors"
           >
             {lang === "en" ? "PT" : "EN"}
           </button>
@@ -146,16 +176,16 @@ export default function App() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">OFX Converter</h1>
-            <p className="text-slate-400 mt-2 text-sm">{t.tagline}</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">OFX Converter</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">{t.tagline}</p>
           </div>
 
           {/* Card */}
-          <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-6 space-y-5">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
             {/* Drop zone */}
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer
-                ${dragOver ? "border-indigo-400 bg-indigo-500/10" : "border-slate-600 hover:border-slate-500 hover:bg-slate-700/30"}
+                ${dragOver ? "border-indigo-400 bg-indigo-500/10" : "border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/30"}
                 ${step === steps.FILE_LOADED || step === steps.DONE ? "border-emerald-500/50 bg-emerald-500/5" : ""}
               `}
               onClick={() => fileInputRef.current?.click()}
@@ -173,12 +203,12 @@ export default function App() {
 
               {step === steps.IDLE && (
                 <>
-                  <svg className="w-10 h-10 text-slate-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
-                  <p className="text-slate-300 font-medium">{t.dropPrompt}</p>
-                  <p className="text-slate-500 text-sm mt-1">{t.dropSub}</p>
+                  <p className="text-slate-700 dark:text-slate-300 font-medium">{t.dropPrompt}</p>
+                  <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">{t.dropSub}</p>
                 </>
               )}
 
@@ -188,7 +218,7 @@ export default function App() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <p className="text-emerald-400 font-medium truncate max-w-xs mx-auto">{fileName}</p>
-                  <p className="text-slate-500 text-xs mt-1">{t.changeFile}</p>
+                  <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{t.changeFile}</p>
                 </>
               )}
 
@@ -198,7 +228,7 @@ export default function App() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <p className="text-red-400 font-medium">{t.uploadFailed}</p>
-                  <p className="text-slate-500 text-xs mt-1">{t.tryAgain}</p>
+                  <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">{t.tryAgain}</p>
                 </>
               )}
             </div>
@@ -210,21 +240,21 @@ export default function App() {
                   {fileType.toUpperCase()}
                 </span>
                 {fileType === "pdf" && (
-                  <span className="text-slate-500 text-xs">{t.pdfHeuristics}</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-xs">{t.pdfHeuristics}</span>
                 )}
               </div>
             )}
 
             {/* Error message */}
             {step === steps.ERROR && errorMsg && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-500 dark:text-red-400 text-sm">
                 {errorMsg}
               </div>
             )}
 
             {/* Result info */}
             {step === steps.DONE && (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3 text-emerald-400 text-sm flex items-center gap-2">
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3 text-emerald-500 dark:text-emerald-400 text-sm flex items-center gap-2">
                 <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -274,7 +304,7 @@ export default function App() {
               {step !== steps.IDLE && (
                 <button
                   onClick={handleReset}
-                  className="w-full py-2 px-4 text-slate-400 hover:text-slate-200 text-sm transition-colors rounded-xl hover:bg-slate-700/50"
+                  className="w-full py-2 px-4 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 text-sm transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/50"
                 >
                   {t.reset}
                 </button>
@@ -282,46 +312,46 @@ export default function App() {
             </div>
           </div>
 
-          <p className="text-center text-slate-600 text-xs mt-6">{t.localNote}</p>
+          <p className="text-center text-slate-400 dark:text-slate-600 text-xs mt-6">{t.localNote}</p>
 
           {/* Informational content for SEO */}
-          <div className="mt-12 space-y-8 text-slate-400 text-sm leading-relaxed">
+          <div className="mt-12 space-y-8 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
             <section>
-              <h2 className="text-slate-200 font-semibold text-base mb-2">{t.whatIsOfxTitle}</h2>
+              <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-base mb-2">{t.whatIsOfxTitle}</h2>
               <p>{t.whatIsOfxBody}</p>
             </section>
 
             <section>
-              <h2 className="text-slate-200 font-semibold text-base mb-2">{t.supportedTitle}</h2>
+              <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-base mb-2">{t.supportedTitle}</h2>
               <ul className="space-y-1 list-disc list-inside marker:text-indigo-500">
-                <li><strong className="text-slate-300">Wise PDF</strong> — {t.supportedWise}</li>
-                <li><strong className="text-slate-300">SEPA camt.053 XML</strong> — {t.supportedCamt}</li>
-                <li><strong className="text-slate-300">XML</strong> — {t.supportedXml}</li>
+                <li><strong className="text-slate-700 dark:text-slate-300">Wise PDF</strong> — {t.supportedWise}</li>
+                <li><strong className="text-slate-700 dark:text-slate-300">SEPA camt.053 XML</strong> — {t.supportedCamt}</li>
+                <li><strong className="text-slate-700 dark:text-slate-300">XML</strong> — {t.supportedXml}</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-slate-200 font-semibold text-base mb-3">{t.faqTitle}</h2>
+              <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-base mb-3">{t.faqTitle}</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-slate-300 font-medium mb-1">{t.faq1q}</h3>
+                  <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{t.faq1q}</h3>
                   <p>{t.faq1a}</p>
                 </div>
                 <div>
-                  <h3 className="text-slate-300 font-medium mb-1">{t.faq2q}</h3>
+                  <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{t.faq2q}</h3>
                   <p>{t.faq2a}</p>
                 </div>
                 <div>
-                  <h3 className="text-slate-300 font-medium mb-1">{t.faq3q}</h3>
+                  <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{t.faq3q}</h3>
                   <p>{t.faq3a}</p>
                 </div>
               </div>
             </section>
           </div>
 
-          <footer className="mt-10 pb-6 text-center text-slate-600 text-xs space-x-4">
+          <footer className="mt-10 pb-6 text-center text-slate-400 dark:text-slate-600 text-xs space-x-4">
             <span>{t.footerLocal}</span>
-            <a href="/privacy.html" className="hover:text-slate-400 transition-colors underline underline-offset-2">{t.privacyLink}</a>
+            <a href="/privacy.html" className="hover:text-slate-600 dark:hover:text-slate-400 transition-colors underline underline-offset-2">{t.privacyLink}</a>
           </footer>
         </div>
       </div>
