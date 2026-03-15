@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { convertXmlToOfx } from "./converter";
+import { convertPdfToOfx } from "./pdfConverter";
 
 const steps = {
   IDLE: "idle",
@@ -12,7 +13,8 @@ const steps = {
 export default function App() {
   const [step, setStep] = useState(steps.IDLE);
   const [fileName, setFileName] = useState("");
-  const [xmlContent, setXmlContent] = useState("");
+  const [fileType, setFileType] = useState(null); // "xml" | "pdf"
+  const [fileContent, setFileContent] = useState(null); // string for XML, ArrayBuffer for PDF
   const [ofxResult, setOfxResult] = useState(null);
   const [txnCount, setTxnCount] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
@@ -21,15 +23,18 @@ export default function App() {
 
   const loadFile = useCallback((file) => {
     if (!file) return;
-    if (!file.name.endsWith(".xml")) {
-      setErrorMsg("Please upload a valid .xml file.");
+    const isXml = file.name.toLowerCase().endsWith(".xml");
+    const isPdf = file.name.toLowerCase().endsWith(".pdf");
+    if (!isXml && !isPdf) {
+      setErrorMsg("Please upload a valid .xml or .pdf file.");
       setStep(steps.ERROR);
       return;
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-      setXmlContent(e.target.result);
+      setFileContent(e.target.result);
       setFileName(file.name);
+      setFileType(isXml ? "xml" : "pdf");
       setStep(steps.FILE_LOADED);
       setErrorMsg("");
       setOfxResult(null);
@@ -38,7 +43,11 @@ export default function App() {
       setErrorMsg("Failed to read the file.");
       setStep(steps.ERROR);
     };
-    reader.readAsText(file);
+    if (isXml) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsArrayBuffer(file);
+    }
   }, []);
 
   const handleFileChange = (e) => {
@@ -51,20 +60,24 @@ export default function App() {
     loadFile(e.dataTransfer.files[0]);
   };
 
-  const handleConvert = () => {
+  const handleConvert = async () => {
     setStep(steps.CONVERTING);
-    // Small timeout to show converting state
-    setTimeout(() => {
-      try {
-        const { ofx, transactionCount } = convertXmlToOfx(xmlContent);
-        setOfxResult(ofx);
-        setTxnCount(transactionCount);
-        setStep(steps.DONE);
-      } catch (err) {
-        setErrorMsg(err.message || "Conversion failed.");
-        setStep(steps.ERROR);
+    try {
+      let result;
+      if (fileType === "xml") {
+        // Small timeout to show converting state for sync operation
+        await new Promise((r) => setTimeout(r, 400));
+        result = convertXmlToOfx(fileContent);
+      } else {
+        result = await convertPdfToOfx(fileContent);
       }
-    }, 400);
+      setOfxResult(result.ofx);
+      setTxnCount(result.transactionCount);
+      setStep(steps.DONE);
+    } catch (err) {
+      setErrorMsg(err.message || "Conversion failed.");
+      setStep(steps.ERROR);
+    }
   };
 
   const handleDownload = () => {
@@ -72,7 +85,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName.replace(/\.xml$/i, ".ofx");
+    a.download = fileName.replace(/\.(xml|pdf)$/i, ".ofx");
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -80,7 +93,8 @@ export default function App() {
   const handleReset = () => {
     setStep(steps.IDLE);
     setFileName("");
-    setXmlContent("");
+    setFileType(null);
+    setFileContent(null);
     setOfxResult(null);
     setTxnCount(0);
     setErrorMsg("");
@@ -99,7 +113,7 @@ export default function App() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight">OFX Converter</h1>
-          <p className="text-slate-400 mt-2 text-sm">Convert your XML bank statements to OFX format</p>
+          <p className="text-slate-400 mt-2 text-sm">Convert your XML or PDF bank statements to OFX format</p>
         </div>
 
         {/* Card */}
@@ -119,7 +133,7 @@ export default function App() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xml"
+              accept=".xml,.pdf"
               className="hidden"
               onChange={handleFileChange}
             />
@@ -130,7 +144,7 @@ export default function App() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
-                <p className="text-slate-300 font-medium">Drop your XML file here</p>
+                <p className="text-slate-300 font-medium">Drop your XML or PDF file here</p>
                 <p className="text-slate-500 text-sm mt-1">or click to browse</p>
               </>
             )}
@@ -155,6 +169,18 @@ export default function App() {
               </>
             )}
           </div>
+
+          {/* File type badge */}
+          {(step === steps.FILE_LOADED || step === steps.DONE) && fileType && (
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${fileType === "pdf" ? "bg-orange-500/20 text-orange-400" : "bg-blue-500/20 text-blue-400"}`}>
+                {fileType.toUpperCase()}
+              </span>
+              {fileType === "pdf" && (
+                <span className="text-slate-500 text-xs">Transaction detection uses heuristics — review results</span>
+              )}
+            </div>
+          )}
 
           {/* Error message */}
           {step === steps.ERROR && errorMsg && (
