@@ -1,0 +1,235 @@
+import { useState, useRef, useCallback } from "react";
+import { convertXmlToOfx } from "./converter";
+
+const steps = {
+  IDLE: "idle",
+  FILE_LOADED: "file_loaded",
+  CONVERTING: "converting",
+  DONE: "done",
+  ERROR: "error",
+};
+
+export default function App() {
+  const [step, setStep] = useState(steps.IDLE);
+  const [fileName, setFileName] = useState("");
+  const [xmlContent, setXmlContent] = useState("");
+  const [ofxResult, setOfxResult] = useState(null);
+  const [txnCount, setTxnCount] = useState(0);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const loadFile = useCallback((file) => {
+    if (!file) return;
+    if (!file.name.endsWith(".xml")) {
+      setErrorMsg("Please upload a valid .xml file.");
+      setStep(steps.ERROR);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setXmlContent(e.target.result);
+      setFileName(file.name);
+      setStep(steps.FILE_LOADED);
+      setErrorMsg("");
+      setOfxResult(null);
+    };
+    reader.onerror = () => {
+      setErrorMsg("Failed to read the file.");
+      setStep(steps.ERROR);
+    };
+    reader.readAsText(file);
+  }, []);
+
+  const handleFileChange = (e) => {
+    loadFile(e.target.files[0]);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    loadFile(e.dataTransfer.files[0]);
+  };
+
+  const handleConvert = () => {
+    setStep(steps.CONVERTING);
+    // Small timeout to show converting state
+    setTimeout(() => {
+      try {
+        const { ofx, transactionCount } = convertXmlToOfx(xmlContent);
+        setOfxResult(ofx);
+        setTxnCount(transactionCount);
+        setStep(steps.DONE);
+      } catch (err) {
+        setErrorMsg(err.message || "Conversion failed.");
+        setStep(steps.ERROR);
+      }
+    }, 400);
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([ofxResult], { type: "application/x-ofx" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName.replace(/\.xml$/i, ".ofx");
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleReset = () => {
+    setStep(steps.IDLE);
+    setFileName("");
+    setXmlContent("");
+    setOfxResult(null);
+    setTxnCount(0);
+    setErrorMsg("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 shadow-lg mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">OFX Converter</h1>
+          <p className="text-slate-400 mt-2 text-sm">Convert your XML bank statements to OFX format</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 p-6 space-y-5">
+
+          {/* Drop zone */}
+          <div
+            className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer
+              ${dragOver ? "border-indigo-400 bg-indigo-500/10" : "border-slate-600 hover:border-slate-500 hover:bg-slate-700/30"}
+              ${step === steps.FILE_LOADED || step === steps.DONE ? "border-emerald-500/50 bg-emerald-500/5" : ""}
+            `}
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xml"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+            {step === steps.IDLE && (
+              <>
+                <svg className="w-10 h-10 text-slate-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <p className="text-slate-300 font-medium">Drop your XML file here</p>
+                <p className="text-slate-500 text-sm mt-1">or click to browse</p>
+              </>
+            )}
+
+            {(step === steps.FILE_LOADED || step === steps.DONE) && (
+              <>
+                <svg className="w-10 h-10 text-emerald-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-emerald-400 font-medium truncate max-w-xs mx-auto">{fileName}</p>
+                <p className="text-slate-500 text-xs mt-1">Click to change file</p>
+              </>
+            )}
+
+            {step === steps.ERROR && (
+              <>
+                <svg className="w-10 h-10 text-red-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-400 font-medium">Upload failed</p>
+                <p className="text-slate-500 text-xs mt-1">Click to try again</p>
+              </>
+            )}
+          </div>
+
+          {/* Error message */}
+          {step === steps.ERROR && errorMsg && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">
+              {errorMsg}
+            </div>
+          )}
+
+          {/* Result info */}
+          {step === steps.DONE && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3 text-emerald-400 text-sm flex items-center gap-2">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Converted successfully — {txnCount} transaction{txnCount !== 1 ? "s" : ""} found.
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="space-y-3">
+            {/* Convert button */}
+            {(step === steps.FILE_LOADED || step === steps.CONVERTING) && (
+              <button
+                onClick={handleConvert}
+                disabled={step === steps.CONVERTING}
+                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                {step === steps.CONVERTING ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Converting...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Convert to OFX
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Download button */}
+            {step === steps.DONE && (
+              <button
+                onClick={handleDownload}
+                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download OFX File
+              </button>
+            )}
+
+            {/* Reset */}
+            {step !== steps.IDLE && (
+              <button
+                onClick={handleReset}
+                className="w-full py-2 px-4 text-slate-400 hover:text-slate-200 text-sm transition-colors rounded-xl hover:bg-slate-700/50"
+              >
+                Start over
+              </button>
+            )}
+          </div>
+        </div>
+
+        <p className="text-center text-slate-600 text-xs mt-6">
+          Files are processed locally — nothing is uploaded to any server.
+        </p>
+      </div>
+    </div>
+  );
+}
