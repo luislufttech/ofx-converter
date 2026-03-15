@@ -1,36 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { convertXmlToOfx } from "./converter";
-import { convertPdfToOfx } from "./pdfConverter";
-import { translations } from "./translations";
-
-const steps = {
-  IDLE: "idle",
-  FILE_LOADED: "file_loaded",
-  CONVERTING: "converting",
-  DONE: "done",
-  ERROR: "error",
-};
-
-function useStoredToggle(key, a, b) {
-  const [value, setValue] = useState(() => localStorage.getItem(key) || a);
-  const toggle = useCallback(() => {
-    setValue((v) => {
-      const next = v === a ? b : a;
-      localStorage.setItem(key, next);
-      return next;
-    });
-  }, [key, a, b]);
-  return [value, toggle];
-}
-
-function DocIcon({ className }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  );
-}
+import { convertXmlToOfx } from "../converters/converter";
+import { convertPdfToOfx } from "../converters/pdfConverter";
+import { translations } from "../lib/translations";
+import { steps } from "../lib/constants";
+import useStoredToggle from "../hooks/useStoredToggle";
+import Header from "./Header";
+import DocIcon from "./DocIcon";
 
 export default function App() {
   const [step, setStep] = useState(steps.IDLE);
@@ -130,41 +105,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col">
-      <header className="border-b border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur px-6 py-3 flex items-center gap-3">
-        <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
-          <DocIcon className="w-4 h-4 text-white" />
-        </div>
-        <span className="text-slate-900 dark:text-white font-semibold text-sm tracking-tight">OFX Converter</span>
-        <div className="ml-auto flex items-center gap-3">
-          <a href={lang === "pt" ? "/blog/pt/" : "/blog/"} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm transition-colors">Blog</a>
-          <button
-            onClick={toggleTheme}
-            className="w-8 h-8 flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-400 transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            )}
-          </button>
-          <button
-            onClick={toggleLang}
-            className="text-xs font-semibold px-2 py-1 rounded-md border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-400 transition-colors"
-          >
-            {lang === "en" ? "PT" : "EN"}
-          </button>
-        </div>
-      </header>
+      <Header lang={lang} theme={theme} toggleLang={toggleLang} toggleTheme={toggleTheme} />
 
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg">
+        <div className="w-full max-w-4xl">
           {/* Hero */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 shadow-lg mb-4">
@@ -175,7 +119,7 @@ export default function App() {
           </div>
 
           {/* Card */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5 w-1/2 mx-auto">
             {/* Drop zone */}
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer

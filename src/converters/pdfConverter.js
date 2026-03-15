@@ -12,7 +12,7 @@
  */
 
 import * as pdfjsLib from "pdfjs-dist";
-import { formatDateNow, buildTransaction, buildOfx } from "./ofxBuilder.js";
+import { formatDateNow, buildTransaction, buildOfx } from "./ofxBuilder";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",

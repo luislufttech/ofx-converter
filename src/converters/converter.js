@@ -1,4 +1,4 @@
-import { formatDateNow, buildTransaction, buildOfx } from "./ofxBuilder.js";
+import { formatDateNow, buildTransaction, buildOfx } from "./ofxBuilder";
 
 function parseDate(dateStr) {
   if (!dateStr) return "";
