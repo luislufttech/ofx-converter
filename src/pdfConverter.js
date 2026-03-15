@@ -1,7 +1,14 @@
 /**
  * Converts a PDF bank statement to OFX format.
  * Extracts text from the PDF and uses heuristics to detect transactions.
- * Supports both single-line and multi-line formats (e.g. Wise statements).
+ *
+ * Wise PDF layout (and similar columnar statements):
+ *   Line N:   "Description text ... txn_amount  balance"  (description + amount columns, same y)
+ *   Line N+1: "DD Month YYYY  Card ending in..."           (date line, below)
+ *
+ * So for each date line we look BACKWARDS for the nearest line that contains amounts.
+ * The last amount on that line is the running balance (ignore it).
+ * The second-to-last amount is the actual transaction amount.
  */
 
 import * as pdfjsLib from "pdfjs-dist";
@@ -27,7 +34,7 @@ const LONG_DATE_RE = new RegExp(
 // "2026-02-23", "23/02/2026", "23-02-2026", "23.02.2026"
 const NUMERIC_DATE_RE = /\b(\d{4}[-/]\d{2}[-/]\d{2}|\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4})\b/;
 
-// Matches amounts like: -46.22  245.17  1,234.56  1.234,56
+// Matches signed or unsigned decimal amounts: -46.22  245.17  1,234.56  1.234,56
 const AMOUNT_RE = /[-+]?\d{1,3}(?:[.,]\d{3})*[.,]\d{2}\b/;
 
 function normalizeAmount(raw) {
@@ -84,6 +91,21 @@ function findAmountsInLine(line) {
   return [...line.matchAll(new RegExp(AMOUNT_RE.source, "g"))].map((m) => m[0]);
 }
 
+/**
+ * Given the amounts line and the chosen transaction amount string,
+ * extract the description: text before the last occurrence of txnAmount.
+ * Also strips common table header words from the start.
+ */
+function extractDesc(line, txnAmount) {
+  const idx = line.lastIndexOf(txnAmount);
+  let desc = idx > 0 ? line.slice(0, idx).trim() : line;
+  // Strip Wise-style table header words that may have merged into the first line
+  desc = desc
+    .replace(/^(Description\s+)?(Incoming\s+)?(Outgoing\s+)?(Amount\s+)?/i, "")
+    .trim();
+  return desc;
+}
+
 function extractTransactionsFromText(text) {
   const lines = text
     .split("\n")
@@ -103,7 +125,7 @@ function extractTransactionsFromText(text) {
     const amountsOnLine = findAmountsInLine(line);
 
     if (amountsOnLine.length > 0) {
-      // Single-line: date and amount appear on the same line
+      // ── Single-line: date and amounts appear on the same line ──────────
       const lastAmount = amountsOnLine[amountsOnLine.length - 1];
       const descBefore = line.slice(0, dateInfo.matchIndex).trim();
       const afterDate = line.slice(dateInfo.matchIndex + dateInfo.matchLength);
@@ -118,36 +140,75 @@ function extractTransactionsFromText(text) {
           name: desc,
         });
       }
-    } else {
-      // Multi-line: look for amounts on the next line (e.g. Wise format)
-      const nextLine = i + 1 < lines.length ? lines[i + 1] : null;
-      if (!nextLine) continue;
+      continue;
+    }
 
-      const amountsOnNext = findAmountsInLine(nextLine);
-      if (amountsOnNext.length === 0) continue;
+    // ── Multi-line: look BACKWARDS for the nearest line that has amounts ──
+    // Wise PDF: columns put description+amounts on one y-coordinate, date on
+    // the next line below. We may also have 1-2 continuation lines between
+    // the amounts line and the date (e.g. a wrapped merchant name like "COM").
+    let foundBackward = false;
+    for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
+      if (usedLines.has(j)) break;
+      if (findDateInLine(lines[j])) break; // hit a previous transaction's date line
 
-      // First amount on next line = transaction amount (e.g. "-46.22")
-      // Second (if present) is typically the running balance — ignore it
-      const txnAmount = amountsOnNext[0];
+      const prevAmounts = findAmountsInLine(lines[j]);
+      if (prevAmounts.length === 0) continue;
 
-      // Gather description from the lines immediately before the date line
-      const descLines = [];
-      for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
-        if (usedLines.has(j)) break;
-        if (findDateInLine(lines[j])) break;
-        descLines.unshift(lines[j]);
-      }
-      const desc = descLines.join(" ") || "Transaction";
+      // Last amount = running balance (ignore).
+      // Second-to-last = actual transaction amount.
+      const txnAmount =
+        prevAmounts.length >= 2
+          ? prevAmounts[prevAmounts.length - 2]
+          : prevAmounts[0];
 
-      if (desc.length >= 2) {
-        usedLines.add(i);
-        usedLines.add(i + 1);
-        transactions.push({
-          date: dateInfo.date,
-          amount: normalizeAmount(txnAmount),
-          name: desc,
-        });
-      }
+      // Description: text from the amounts line before the txn amount,
+      // plus any continuation lines between j+1 and i-1.
+      const descFromAmtsLine = extractDesc(lines[j], txnAmount);
+      const descMiddle = lines.slice(j + 1, i).join(" ").trim();
+      const desc =
+        [descFromAmtsLine, descMiddle].filter(Boolean).join(" ") || "Transaction";
+
+      // Mark all lines from the amounts line through the date line as used
+      for (let k = j; k <= i; k++) usedLines.add(k);
+
+      transactions.push({
+        date: dateInfo.date,
+        amount: normalizeAmount(txnAmount),
+        name: desc,
+      });
+      foundBackward = true;
+      break;
+    }
+
+    if (foundBackward) continue;
+
+    // ── Fallback: look at the NEXT line for amounts ────────────────────────
+    // Handles formats where amounts follow the date line.
+    const nextLine = i + 1 < lines.length ? lines[i + 1] : null;
+    if (!nextLine) continue;
+
+    const amountsOnNext = findAmountsInLine(nextLine);
+    if (amountsOnNext.length === 0) continue;
+
+    const txnAmount = amountsOnNext[0];
+
+    // Description from lines before the date line
+    const descLines = [];
+    for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
+      if (usedLines.has(j) || findDateInLine(lines[j])) break;
+      descLines.unshift(lines[j]);
+    }
+    const desc = descLines.join(" ") || "Transaction";
+
+    if (desc.length >= 2) {
+      usedLines.add(i);
+      usedLines.add(i + 1);
+      transactions.push({
+        date: dateInfo.date,
+        amount: normalizeAmount(txnAmount),
+        name: desc,
+      });
     }
   }
 
@@ -162,7 +223,7 @@ async function extractTextFromPdf(arrayBuffer) {
     const page = await pdf.getPage(pageNum);
     const content = await page.getTextContent();
 
-    // Group text items by y-coordinate to reconstruct lines
+    // Group text items by y-coordinate to reconstruct visual lines
     const lineMap = new Map();
     for (const item of content.items) {
       if (!item.str || !item.str.trim()) continue;

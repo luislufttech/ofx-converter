@@ -1,6 +1,6 @@
 /**
  * Converts an XML bank statement to OFX format.
- * Supports generic XML with transaction-like nodes.
+ * Supports generic XML and ISO 20022 camt.053 (Wise, SEPA, etc.).
  */
 
 function parseDate(dateStr) {
@@ -29,16 +29,19 @@ function getText(el, ...tags) {
 }
 
 export function convertXmlToOfx(xmlString) {
+  // Strip XML namespace declarations so querySelector works without namespace handling
+  const cleanXml = xmlString.replace(/\s+xmlns(?::\w+)?="[^"]*"/g, "");
+
   const parser = new DOMParser();
-  const doc = parser.parseFromString(xmlString, "application/xml");
+  const doc = parser.parseFromString(cleanXml, "application/xml");
 
   const parseError = doc.querySelector("parsererror");
   if (parseError) {
     throw new Error("Invalid XML: " + parseError.textContent);
   }
 
-  // Try to detect common transaction node names
-  const txnNodeNames = ["STMTTRN", "transaction", "Transaction", "TRANSACTION", "entry", "Entry"];
+  // Try common transaction node names; Ntry is used in ISO 20022 camt.053
+  const txnNodeNames = ["STMTTRN", "Ntry", "transaction", "Transaction", "TRANSACTION", "entry", "Entry"];
   let transactions = [];
   for (const name of txnNodeNames) {
     const nodes = doc.querySelectorAll(name);
@@ -48,31 +51,65 @@ export function convertXmlToOfx(xmlString) {
     }
   }
 
-  // Account info (best-effort)
-  const bankId = getText(doc, "BANKID", "bankId", "bank_id", "BankId") || "000000000";
-  const acctId = getText(doc, "ACCTID", "acctId", "account_id", "AccountId", "accountId") || "000000000";
+  // Account info — try generic and camt.053 field names
+  const bankId = getText(doc, "BANKID", "bankId", "bank_id", "BankId", "BICFI", "BIC") || "000000000";
+  const acctId = getText(doc, "ACCTID", "acctId", "account_id", "AccountId", "accountId", "IBAN") || "000000000";
   const acctType = getText(doc, "ACCTTYPE", "acctType", "account_type", "AccountType") || "CHECKING";
-  const currency = getText(doc, "CURDEF", "currency", "Currency", "CURRENCY") || "USD";
+
+  // Currency: try element text first, then attribute on Amt element
+  let currency = getText(doc, "CURDEF", "currency", "Currency", "CURRENCY", "Ccy");
+  if (!currency) {
+    const amtEl = doc.querySelector("Amt");
+    currency = amtEl?.getAttribute("Ccy") || "USD";
+  }
 
   const now = new Date();
   const dtNow = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
 
   const txnLines = transactions.map((trn, i) => {
-    const trntype =
-      getText(trn, "TRNTYPE", "type", "Type", "trnType", "transactionType") || "OTHER";
-    const dtposted =
-      parseDate(getText(trn, "DTPOSTED", "date", "Date", "dtPosted", "transactionDate", "postDate")) || dtNow;
-    const trnamt =
-      getText(trn, "TRNAMT", "amount", "Amount", "trnAmt", "value") || "0.00";
-    const fitid =
-      getText(trn, "FITID", "id", "Id", "fitId", "transactionId") || String(i + 1);
+    // camt.053 uses CdtDbtInd (CRDT/DBIT) to indicate sign
+    const cdtDbt = getText(trn, "CdtDbtInd");
+
+    // Type
+    let trntype;
+    if (cdtDbt === "DBIT") trntype = "DEBIT";
+    else if (cdtDbt === "CRDT") trntype = "CREDIT";
+    else trntype = (getText(trn, "TRNTYPE", "type", "Type", "trnType", "transactionType") || "OTHER").toUpperCase();
+
+    // Amount — camt.053 uses <Amt> (always positive); sign comes from CdtDbtInd
+    const rawAmt = getText(trn, "Amt", "TRNAMT", "amount", "Amount", "trnAmt", "value") || "0.00";
+    const trnamt = cdtDbt === "DBIT" ? `-${rawAmt}` : rawAmt;
+
+    // Date — camt.053 uses <BookgDt><Dt> or <ValDt><Dt>
+    let dtStr = getText(trn, "DTPOSTED", "date", "Date", "dtPosted", "transactionDate", "postDate");
+    if (!dtStr) {
+      const dtEl =
+        trn.querySelector("BookgDt Dt") ||
+        trn.querySelector("ValDt Dt") ||
+        trn.querySelector("Dt");
+      if (dtEl) dtStr = dtEl.textContent.trim();
+    }
+    const dtposted = parseDate(dtStr) || dtNow;
+
+    // ID — camt.053 uses <BkTxCd><Prtry><Cd> or <NtryRef>
+    let fitid = getText(trn, "FITID", "id", "fitId", "transactionId");
+    if (!fitid) {
+      const idEl =
+        trn.querySelector("BkTxCd Prtry Cd") ||
+        trn.querySelector("NtryRef");
+      fitid = idEl ? idEl.textContent.trim() : String(i + 1);
+    }
+
+    // Name — camt.053 uses <AddtlNtryInf> or <RmtInf><Ustrd>
     const name =
-      getText(trn, "NAME", "name", "Name", "description", "Description", "memo", "Memo") || "Transaction";
-    const memo =
-      getText(trn, "MEMO", "memo", "Memo", "notes", "Notes") || "";
+      getText(trn, "AddtlNtryInf", "NAME", "name", "Name", "description", "Description", "memo", "Memo") ||
+      getText(trn, "Ustrd") ||
+      "Transaction";
+
+    const memo = getText(trn, "MEMO", "memo", "Memo", "notes", "Notes") || "";
 
     return `<STMTTRN>
-<TRNTYPE>${trntype.toUpperCase()}</TRNTYPE>
+<TRNTYPE>${trntype}</TRNTYPE>
 <DTPOSTED>${dtposted}</DTPOSTED>
 <TRNAMT>${trnamt}</TRNAMT>
 <FITID>${fitid}</FITID>
