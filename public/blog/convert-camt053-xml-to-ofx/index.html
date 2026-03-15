@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Convert camt.053 XML Bank Statements to OFX – OFX Converter</title>
+    <meta name="description" content="camt.053 is the ISO 20022 XML format used by European banks and Wise. Learn how to convert your camt.053 XML statement to OFX format in seconds." />
+    <link rel="canonical" href="https://ofx-converter.netlify.app/blog/convert-camt053-xml-to-ofx/" />
+    <link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/converter-camt053-xml-para-ofx/" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #cbd5e1; line-height: 1.7; padding: 0; }
+      .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+      header { border-bottom: 1px solid #1e293b; background: rgba(15,23,42,0.6); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+      .logo { width: 28px; height: 28px; background: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .logo svg { width: 16px; height: 16px; stroke: white; fill: none; }
+      .header-links { margin-left: auto; display: flex; gap: 1.5rem; }
+      .header-links a { color: #94a3b8; text-decoration: none; font-size: 0.875rem; }
+      .header-links a:hover { color: #e2e8f0; }
+      .site-name { color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+      h1 { color: #f1f5f9; font-size: 2rem; line-height: 1.3; margin: 2rem 0 0.75rem; }
+      .meta { color: #64748b; font-size: 0.85rem; margin-bottom: 2rem; }
+      h2 { color: #e2e8f0; font-size: 1.2rem; margin: 2rem 0 0.6rem; }
+      p { margin-bottom: 1rem; }
+      ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.4rem; }
+      strong { color: #e2e8f0; }
+      a { color: #818cf8; }
+      .cta { display: inline-block; margin: 2rem 0; padding: 0.75rem 1.5rem; background: #4f46e5; color: white; border-radius: 0.75rem; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+      .cta:hover { background: #6366f1; }
+      footer { margin-top: 3rem; padding: 1.5rem; border-top: 1px solid #1e293b; font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+      footer a { color: #818cf8; }
+      .lang-badge { display: inline-block; padding: 0.2rem 0.6rem; background: #1e293b; border-radius: 9999px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+        </svg>
+      </div>
+      <a href="/" class="site-name">OFX Converter</a>
+      <div class="header-links">
+        <a href="/blog/">Blog</a>
+        <a href="/blog/pt/converter-camt053-xml-para-ofx/">PT</a>
+      </div>
+    </header>
+
+    <div class="container">
+      <span class="lang-badge">English</span>
+      <h1>How to Convert camt.053 XML Bank Statements to OFX</h1>
+      <div class="meta">Published March 2026 · 4 min read</div>
+
+      <p>camt.053 (formally ISO 20022 Bank-to-Customer Statement) is the international XML standard for bank account statements. It is widely used by European banks, SEPA-compliant institutions, and global services like Wise. If your bank exports statements in camt.053 format, you can convert them to OFX in seconds — and import them into any personal finance software.</p>
+
+      <h2>What is camt.053?</h2>
+      <p>camt.053 is part of the ISO 20022 family of financial messaging standards. The "camt" stands for Cash Management, and version 053 specifically defines the Bank-to-Customer Statement message. Unlike a PDF, a camt.053 file is a structured XML document containing all transaction details in machine-readable form: dates, amounts, currency, transaction codes, and descriptions.</p>
+
+      <h2>Which Banks Use camt.053?</h2>
+      <p>camt.053 is the standard export format for many banks, including:</p>
+      <ul>
+        <li>Wise (formerly TransferWise) — XML export option</li>
+        <li>Revolut (in some markets)</li>
+        <li>Most major European retail banks (Deutsche Bank, ING, Rabobank, etc.)</li>
+        <li>SEPA-compliant banks across the EU</li>
+        <li>Many Swiss banks (UBS, Credit Suisse successor)</li>
+      </ul>
+
+      <h2>How to Export camt.053 from Wise</h2>
+      <ol>
+        <li>Log in to your Wise account.</li>
+        <li>Go to your account (USD, EUR, or other currency).</li>
+        <li>Click "Statement".</li>
+        <li>Select "XML" as the format (not PDF).</li>
+        <li>Choose your date range and download.</li>
+      </ol>
+
+      <h2>How to Convert camt.053 to OFX</h2>
+      <ol>
+        <li>Open OFX Converter at ofx-converter.netlify.app.</li>
+        <li>Drag and drop your camt.053 XML file onto the upload area.</li>
+        <li>Click "Convert to OFX".</li>
+        <li>Download the resulting OFX file.</li>
+        <li>Import into YNAB, GnuCash, Quicken, or your app of choice.</li>
+      </ol>
+      <p>The converter automatically detects the camt.053 format, reads the correct fields (<strong>Ntry</strong> elements, <strong>BookgDt</strong> dates, <strong>Amt</strong> values, <strong>CdtDbtInd</strong> for debit/credit), and produces a standard OFX file.</p>
+
+      <a href="/" class="cta">Convert Your camt.053 File Now →</a>
+
+      <h2>camt.053 vs PDF — Which Should I Use?</h2>
+      <p>If your bank offers both PDF and XML (camt.053) export, always choose XML. The structured data in camt.053 results in more accurate conversion — correct amounts, dates, and transaction types every time. PDF conversion uses text extraction which works well but can occasionally miss transactions in complex layouts.</p>
+
+      <footer>
+        <a href="/blog/">← Blog</a>
+        <a href="/">Try the OFX Converter →</a>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>O que é o Formato OFX? Um Guia Completo – OFX Converter</title>
+    <meta name="description" content="OFX (Open Financial Exchange) é o formato padrão para importar transações bancárias em aplicativos de finanças pessoais. Saiba o que é, como funciona e quais apps suportam." />
+    <link rel="canonical" href="https://ofx-converter.netlify.app/blog/pt/o-que-e-formato-ofx/" />
+    <link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/what-is-ofx-format/" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #cbd5e1; line-height: 1.7; padding: 0; }
+      .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+      header { border-bottom: 1px solid #1e293b; background: rgba(15,23,42,0.6); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+      .logo { width: 28px; height: 28px; background: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .logo svg { width: 16px; height: 16px; stroke: white; fill: none; }
+      .header-links { margin-left: auto; display: flex; gap: 1.5rem; }
+      .header-links a { color: #94a3b8; text-decoration: none; font-size: 0.875rem; }
+      .header-links a:hover { color: #e2e8f0; }
+      .site-name { color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+      h1 { color: #f1f5f9; font-size: 2rem; line-height: 1.3; margin: 2rem 0 0.75rem; }
+      .meta { color: #64748b; font-size: 0.85rem; margin-bottom: 2rem; }
+      h2 { color: #e2e8f0; font-size: 1.2rem; margin: 2rem 0 0.6rem; }
+      p { margin-bottom: 1rem; }
+      ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.4rem; }
+      strong { color: #e2e8f0; }
+      a { color: #818cf8; }
+      .cta { display: inline-block; margin: 2rem 0; padding: 0.75rem 1.5rem; background: #4f46e5; color: white; border-radius: 0.75rem; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+      .cta:hover { background: #6366f1; }
+      footer { margin-top: 3rem; padding: 1.5rem; border-top: 1px solid #1e293b; font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+      footer a { color: #818cf8; }
+      .lang-badge { display: inline-block; padding: 0.2rem 0.6rem; background: #1e293b; border-radius: 9999px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+        </svg>
+      </div>
+      <a href="/" class="site-name">OFX Converter</a>
+      <div class="header-links">
+        <a href="/blog/pt/">Blog</a>
+        <a href="/blog/what-is-ofx-format/">EN</a>
+      </div>
+    </header>
+
+    <div class="container">
+      <span class="lang-badge">Português</span>
+      <h1>O que é o Formato OFX? Um Guia Completo</h1>
+      <div class="meta">Publicado em março de 2026 · 4 min de leitura</div>
+
+      <p>OFX significa Open Financial Exchange. É uma especificação de dados para a troca eletrônica de informações financeiras entre instituições financeiras, empresas e consumidores. Desenvolvido em conjunto pela CheckFree, Intuit e Microsoft em 1997, o OFX tornou-se o formato padrão usado mundialmente para importar transações bancárias em softwares de finanças pessoais e contabilidade.</p>
+
+      <h2>Por que o OFX é Importante</h2>
+      <p>Quando você baixa seu extrato bancário, normalmente recebe um PDF — ótimo para leitura, mas inútil para softwares. O OFX é legível por máquina: contém dados de transações estruturados que aplicativos podem importar, categorizar e analisar diretamente. Sem digitação manual, sem planilhas complicadas.</p>
+
+      <h2>Quais Aplicativos Suportam OFX?</h2>
+      <p>O OFX é suportado por praticamente todos os principais aplicativos de finanças pessoais:</p>
+      <ul>
+        <li>Quicken (suporte completo ao OFX desde 1997)</li>
+        <li>YNAB (You Need A Budget)</li>
+        <li>GnuCash (gratuito e open source)</li>
+        <li>Banktivity (macOS/iOS)</li>
+        <li>Moneydance</li>
+        <li>HomeBank (gratuito, multiplataforma)</li>
+        <li>Microsoft Money (legado)</li>
+      </ul>
+
+      <h2>Como é um Arquivo OFX?</h2>
+      <p>Os arquivos OFX usam uma estrutura baseada em tags similar ao XML. Cada transação é envolvida por tags <strong>STMTTRN</strong> e inclui data, valor, tipo (DEBIT ou CREDIT) e uma descrição. O arquivo também inclui informações da conta como ID do banco, número da conta e moeda.</p>
+
+      <h2>Como Obter um Arquivo OFX do Seu Banco</h2>
+      <p>Muitos bancos permitem baixar extratos em formato OFX diretamente pelo internet banking. Porém, serviços internacionais como o Wise exportam apenas em PDF ou XML (camt.053). É aí que nosso conversor entra — ele lê seu PDF ou XML e gera um arquivo OFX válido pronto para importação.</p>
+
+      <a href="/" class="cta">Converter Seu Extrato Agora →</a>
+
+      <h2>Perguntas Frequentes</h2>
+
+      <p><strong>OFX é o mesmo que QFX?</strong></p>
+      <p>QFX é uma variante proprietária do Quicken baseada no OFX. São quase idênticos na estrutura; a maioria dos apps que aceitam OFX também aceita QFX.</p>
+
+      <p><strong>Posso abrir um arquivo OFX no Excel?</strong></p>
+      <p>Não diretamente, mas você pode renomeá-lo para .txt e abrir para inspecionar o conteúdo. Para análise adequada, importe-o primeiro em um app de finanças.</p>
+
+      <footer>
+        <a href="/blog/pt/">← Blog</a>
+        <a href="/">Usar o Conversor →</a>
+      </footer>
+    </div>
+  </body>
+</html>

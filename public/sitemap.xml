@@ -1,13 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Main app -->
   <url>
     <loc>https://ofx-converter.netlify.app/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- Privacy policy -->
   <url>
     <loc>https://ofx-converter.netlify.app/privacy.html</loc>
     <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.2</priority>
   </url>
+
+  <!-- Blog index -->
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/"/>
+  </url>
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/pt/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/"/>
+  </url>
+
+  <!-- Article 1: What is OFX Format -->
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/what-is-ofx-format/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/what-is-ofx-format/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/o-que-e-formato-ofx/"/>
+  </url>
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/pt/o-que-e-formato-ofx/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/what-is-ofx-format/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/o-que-e-formato-ofx/"/>
+  </url>
+
+  <!-- Article 2: Import Wise to YNAB -->
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/how-to-import-wise-to-ynab/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/how-to-import-wise-to-ynab/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/como-importar-wise-para-ynab/"/>
+  </url>
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/pt/como-importar-wise-para-ynab/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/how-to-import-wise-to-ynab/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/como-importar-wise-para-ynab/"/>
+  </url>
+
+  <!-- Article 3: camt.053 to OFX -->
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/convert-camt053-xml-to-ofx/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/convert-camt053-xml-to-ofx/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/converter-camt053-xml-para-ofx/"/>
+  </url>
+  <url>
+    <loc>https://ofx-converter.netlify.app/blog/pt/converter-camt053-xml-para-ofx/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/convert-camt053-xml-to-ofx/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/converter-camt053-xml-para-ofx/"/>
+  </url>
+
 </urlset>

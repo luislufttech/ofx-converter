@@ -1,0 +1,81 @@
+export const translations = {
+  en: {
+    tagline: "Convert your XML or PDF bank statements to OFX format",
+    dropPrompt: "Drop your XML or PDF file here",
+    dropSub: "or click to browse",
+    changeFile: "Click to change file",
+    uploadFailed: "Upload failed",
+    tryAgain: "Click to try again",
+    invalidFile: "Please upload a valid .xml or .pdf file.",
+    readError: "Failed to read the file.",
+    conversionFailed: "Conversion failed.",
+    pdfHeuristics: "Transaction detection uses heuristics — review results",
+    successOne: "Converted successfully — 1 transaction found.",
+    successMany: (n) => `Converted successfully — ${n} transactions found.`,
+    convert: "Convert to OFX",
+    converting: "Converting...",
+    download: "Download OFX File",
+    reset: "Start over",
+    localNote: "Files are processed locally — nothing is uploaded to any server.",
+    footerLocal: "Files processed locally — never uploaded.",
+    privacyLink: "Privacy Policy",
+
+    // Info section
+    whatIsOfxTitle: "What is OFX format?",
+    whatIsOfxBody:
+      "OFX (Open Financial Exchange) is a standardized data format used by banks and personal finance applications to exchange transaction data. It is widely supported by tools like Quicken, GnuCash, YNAB, and most accounting software, making it the easiest way to import your bank history without manual entry.",
+    supportedTitle: "Supported input formats",
+    supportedWise: "Wise PDF statements — monthly USD, EUR, and multi-currency exports",
+    supportedCamt: "SEPA camt.053 XML — ISO 20022 bank-to-customer statement format",
+    supportedXml: "Generic XML — any XML file containing transaction-like nodes",
+    faqTitle: "Frequently asked questions",
+    faq1q: "Is this tool free?",
+    faq1a: "Yes, completely free with no sign-up or account required.",
+    faq2q: "Is my financial data safe?",
+    faq2a:
+      "All conversion happens directly in your browser. Your files are never uploaded to any server — not even ours. Once you close the tab, nothing is retained.",
+    faq3q: "Which apps accept OFX files?",
+    faq3a:
+      "Quicken, GnuCash, YNAB, Banktivity, Moneydance, HomeBank, and most other personal finance and accounting applications support importing OFX files directly.",
+  },
+
+  pt: {
+    tagline: "Converta seus extratos bancários XML ou PDF para o formato OFX",
+    dropPrompt: "Solte seu arquivo XML ou PDF aqui",
+    dropSub: "ou clique para selecionar",
+    changeFile: "Clique para trocar o arquivo",
+    uploadFailed: "Falha no envio",
+    tryAgain: "Clique para tentar novamente",
+    invalidFile: "Por favor, envie um arquivo .xml ou .pdf válido.",
+    readError: "Falha ao ler o arquivo.",
+    conversionFailed: "Falha na conversão.",
+    pdfHeuristics: "A detecção de transações usa heurística — revise os resultados",
+    successOne: "Convertido com sucesso — 1 transação encontrada.",
+    successMany: (n) => `Convertido com sucesso — ${n} transações encontradas.`,
+    convert: "Converter para OFX",
+    converting: "Convertendo...",
+    download: "Baixar Arquivo OFX",
+    reset: "Recomeçar",
+    localNote: "Os arquivos são processados localmente — nada é enviado para nenhum servidor.",
+    footerLocal: "Arquivos processados localmente — nunca enviados.",
+    privacyLink: "Política de Privacidade",
+
+    // Info section
+    whatIsOfxTitle: "O que é o formato OFX?",
+    whatIsOfxBody:
+      "OFX (Open Financial Exchange) é um formato de dados padronizado usado por bancos e aplicativos de finanças pessoais para trocar dados de transações. É amplamente suportado por ferramentas como Quicken, GnuCash, YNAB e a maioria dos softwares de contabilidade, sendo a forma mais fácil de importar seu histórico bancário sem entrada manual.",
+    supportedTitle: "Formatos de entrada suportados",
+    supportedWise: "Extratos PDF do Wise — exportações mensais em USD, EUR e multi-moeda",
+    supportedCamt: "SEPA camt.053 XML — formato ISO 20022 de extrato banco-para-cliente",
+    supportedXml: "XML Genérico — qualquer arquivo XML contendo nós semelhantes a transações",
+    faqTitle: "Perguntas frequentes",
+    faq1q: "Esta ferramenta é gratuita?",
+    faq1a: "Sim, completamente gratuita, sem necessidade de cadastro ou conta.",
+    faq2q: "Meus dados financeiros estão seguros?",
+    faq2a:
+      "Toda a conversão acontece diretamente no seu navegador. Seus arquivos nunca são enviados para nenhum servidor — nem o nosso. Ao fechar a aba, nada é retido.",
+    faq3q: "Quais aplicativos aceitam arquivos OFX?",
+    faq3a:
+      "Quicken, GnuCash, YNAB, Banktivity, Moneydance, HomeBank e a maioria dos outros aplicativos de finanças pessoais e contabilidade suportam a importação de arquivos OFX diretamente.",
+  },
+};

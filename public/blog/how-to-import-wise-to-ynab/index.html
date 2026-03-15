@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How to Import Wise Transactions into YNAB, GnuCash &amp; More – OFX Converter</title>
+    <meta name="description" content="Step-by-step guide to exporting your Wise bank statement and importing it into YNAB, GnuCash, Quicken, or any OFX-compatible app using our free converter." />
+    <link rel="canonical" href="https://ofx-converter.netlify.app/blog/how-to-import-wise-to-ynab/" />
+    <link rel="alternate" hreflang="pt" href="https://ofx-converter.netlify.app/blog/pt/como-importar-wise-para-ynab/" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #cbd5e1; line-height: 1.7; padding: 0; }
+      .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+      header { border-bottom: 1px solid #1e293b; background: rgba(15,23,42,0.6); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+      .logo { width: 28px; height: 28px; background: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .logo svg { width: 16px; height: 16px; stroke: white; fill: none; }
+      .header-links { margin-left: auto; display: flex; gap: 1.5rem; }
+      .header-links a { color: #94a3b8; text-decoration: none; font-size: 0.875rem; }
+      .header-links a:hover { color: #e2e8f0; }
+      .site-name { color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+      h1 { color: #f1f5f9; font-size: 2rem; line-height: 1.3; margin: 2rem 0 0.75rem; }
+      .meta { color: #64748b; font-size: 0.85rem; margin-bottom: 2rem; }
+      h2 { color: #e2e8f0; font-size: 1.2rem; margin: 2rem 0 0.6rem; }
+      p { margin-bottom: 1rem; }
+      ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.4rem; }
+      strong { color: #e2e8f0; }
+      a { color: #818cf8; }
+      .cta { display: inline-block; margin: 2rem 0; padding: 0.75rem 1.5rem; background: #4f46e5; color: white; border-radius: 0.75rem; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+      .cta:hover { background: #6366f1; }
+      footer { margin-top: 3rem; padding: 1.5rem; border-top: 1px solid #1e293b; font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+      footer a { color: #818cf8; }
+      .lang-badge { display: inline-block; padding: 0.2rem 0.6rem; background: #1e293b; border-radius: 9999px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+        </svg>
+      </div>
+      <a href="/" class="site-name">OFX Converter</a>
+      <div class="header-links">
+        <a href="/blog/">Blog</a>
+        <a href="/blog/pt/como-importar-wise-para-ynab/">PT</a>
+      </div>
+    </header>
+
+    <div class="container">
+      <span class="lang-badge">English</span>
+      <h1>How to Import Wise Transactions into YNAB, GnuCash &amp; More</h1>
+      <div class="meta">Published March 2026 · 5 min read</div>
+
+      <p>Wise (formerly TransferWise) is one of the most popular international banking services, but it does not offer direct OFX export — only PDF statements and XML (camt.053). This means importing your Wise transactions into apps like YNAB, GnuCash, or Quicken requires a conversion step. Here is exactly how to do it.</p>
+
+      <h2>Step 1: Export Your Statement from Wise</h2>
+      <ol>
+        <li>Log in to your Wise account at wise.com.</li>
+        <li>Go to your USD (or other currency) account.</li>
+        <li>Click "Statement" or "Download statement".</li>
+        <li>Choose the date range you want.</li>
+        <li>Select PDF format and download the file.</li>
+      </ol>
+      <p>Wise also offers XML (camt.053) export for some accounts — if available, that works too and often gives cleaner results.</p>
+
+      <h2>Step 2: Convert the Statement to OFX</h2>
+      <ol>
+        <li>Open OFX Converter at ofx-converter.netlify.app.</li>
+        <li>Drag and drop your Wise PDF (or XML) onto the upload area, or click to browse.</li>
+        <li>Click "Convert to OFX".</li>
+        <li>Once complete, click "Download OFX File".</li>
+      </ol>
+      <p>The converter processes everything in your browser — your financial data is never sent to any server.</p>
+
+      <a href="/" class="cta">Open OFX Converter →</a>
+
+      <h2>Step 3: Import into Your App</h2>
+
+      <p><strong>YNAB</strong></p>
+      <p>In YNAB, go to your account → click the import icon → select your .ofx file → review and approve the transactions.</p>
+
+      <p><strong>GnuCash</strong></p>
+      <p>Go to File → Import → Import OFX/QFX → select your file. GnuCash will match transactions to your accounts automatically.</p>
+
+      <p><strong>Quicken</strong></p>
+      <p>Go to File → Import → OFX File → select your downloaded file and follow the prompts.</p>
+
+      <p><strong>HomeBank</strong></p>
+      <p>Go to File → Import → select the OFX file. HomeBank will add the transactions to the selected account.</p>
+
+      <h2>Tips for Best Results</h2>
+      <ul>
+        <li>Download one month at a time to avoid duplicates when importing.</li>
+        <li>Review the converted transactions before importing — PDF conversion uses text detection which works well but may occasionally miss a transaction.</li>
+        <li>If using XML (camt.053) export from Wise, the conversion is more accurate than PDF.</li>
+        <li>Always reconcile your account after importing to catch any discrepancies.</li>
+      </ul>
+
+      <footer>
+        <a href="/blog/">← Blog</a>
+        <a href="/">Try the OFX Converter →</a>
+      </footer>
+    </div>
+  </body>
+</html>

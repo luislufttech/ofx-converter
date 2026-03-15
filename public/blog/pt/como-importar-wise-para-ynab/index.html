@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Como Importar Transações do Wise para YNAB, GnuCash e Mais – OFX Converter</title>
+    <meta name="description" content="Guia passo a passo para exportar seu extrato do Wise e importá-lo no YNAB, GnuCash, Quicken ou qualquer app compatível com OFX usando nosso conversor gratuito." />
+    <link rel="canonical" href="https://ofx-converter.netlify.app/blog/pt/como-importar-wise-para-ynab/" />
+    <link rel="alternate" hreflang="en" href="https://ofx-converter.netlify.app/blog/how-to-import-wise-to-ynab/" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #cbd5e1; line-height: 1.7; padding: 0; }
+      .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+      header { border-bottom: 1px solid #1e293b; background: rgba(15,23,42,0.6); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+      .logo { width: 28px; height: 28px; background: #4f46e5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .logo svg { width: 16px; height: 16px; stroke: white; fill: none; }
+      .header-links { margin-left: auto; display: flex; gap: 1.5rem; }
+      .header-links a { color: #94a3b8; text-decoration: none; font-size: 0.875rem; }
+      .header-links a:hover { color: #e2e8f0; }
+      .site-name { color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+      h1 { color: #f1f5f9; font-size: 2rem; line-height: 1.3; margin: 2rem 0 0.75rem; }
+      .meta { color: #64748b; font-size: 0.85rem; margin-bottom: 2rem; }
+      h2 { color: #e2e8f0; font-size: 1.2rem; margin: 2rem 0 0.6rem; }
+      p { margin-bottom: 1rem; }
+      ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.4rem; }
+      strong { color: #e2e8f0; }
+      a { color: #818cf8; }
+      .cta { display: inline-block; margin: 2rem 0; padding: 0.75rem 1.5rem; background: #4f46e5; color: white; border-radius: 0.75rem; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+      .cta:hover { background: #6366f1; }
+      footer { margin-top: 3rem; padding: 1.5rem; border-top: 1px solid #1e293b; font-size: 0.85rem; color: #64748b; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+      footer a { color: #818cf8; }
+      .lang-badge { display: inline-block; padding: 0.2rem 0.6rem; background: #1e293b; border-radius: 9999px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+        </svg>
+      </div>
+      <a href="/" class="site-name">OFX Converter</a>
+      <div class="header-links">
+        <a href="/blog/pt/">Blog</a>
+        <a href="/blog/how-to-import-wise-to-ynab/">EN</a>
+      </div>
+    </header>
+
+    <div class="container">
+      <span class="lang-badge">Português</span>
+      <h1>Como Importar Transações do Wise para YNAB, GnuCash e Mais</h1>
+      <div class="meta">Publicado em março de 2026 · 5 min de leitura</div>
+
+      <p>O Wise (anteriormente TransferWise) é um dos serviços bancários internacionais mais populares, mas não oferece exportação direta em OFX — apenas extratos em PDF e XML (camt.053). Isso significa que importar suas transações do Wise para apps como YNAB, GnuCash ou Quicken exige uma etapa de conversão. Veja exatamente como fazer isso.</p>
+
+      <h2>Passo 1: Exporte Seu Extrato do Wise</h2>
+      <ol>
+        <li>Faça login na sua conta Wise em wise.com.</li>
+        <li>Acesse sua conta em USD (ou outra moeda).</li>
+        <li>Clique em "Extrato" ou "Baixar extrato".</li>
+        <li>Escolha o período que deseja.</li>
+        <li>Selecione o formato PDF e baixe o arquivo.</li>
+      </ol>
+      <p>O Wise também oferece exportação em XML (camt.053) para algumas contas — se disponível, essa opção também funciona e geralmente produz resultados mais precisos.</p>
+
+      <h2>Passo 2: Converta o Extrato para OFX</h2>
+      <ol>
+        <li>Abra o OFX Converter em ofx-converter.netlify.app.</li>
+        <li>Arraste e solte seu PDF (ou XML) do Wise na área de upload, ou clique para selecionar.</li>
+        <li>Clique em "Converter para OFX".</li>
+        <li>Após a conclusão, clique em "Baixar Arquivo OFX".</li>
+      </ol>
+      <p>O conversor processa tudo no seu navegador — seus dados financeiros nunca são enviados para nenhum servidor.</p>
+
+      <a href="/" class="cta">Abrir o Conversor OFX →</a>
+
+      <h2>Passo 3: Importe no Seu Aplicativo</h2>
+
+      <p><strong>YNAB</strong></p>
+      <p>No YNAB, acesse sua conta → clique no ícone de importação → selecione seu arquivo .ofx → revise e aprove as transações.</p>
+
+      <p><strong>GnuCash</strong></p>
+      <p>Vá em Arquivo → Importar → Importar OFX/QFX → selecione seu arquivo. O GnuCash irá associar as transações às suas contas automaticamente.</p>
+
+      <p><strong>Quicken</strong></p>
+      <p>Vá em Arquivo → Importar → Arquivo OFX → selecione o arquivo baixado e siga as instruções.</p>
+
+      <p><strong>HomeBank</strong></p>
+      <p>Vá em Arquivo → Importar → selecione o arquivo OFX. O HomeBank adicionará as transações à conta selecionada.</p>
+
+      <h2>Dicas para Melhores Resultados</h2>
+      <ul>
+        <li>Baixe um mês de cada vez para evitar duplicatas na importação.</li>
+        <li>Revise as transações convertidas antes de importar — a conversão de PDF usa detecção de texto, que funciona bem mas pode ocasionalmente perder alguma transação.</li>
+        <li>Se usar a exportação XML (camt.053) do Wise, a conversão é mais precisa do que com PDF.</li>
+        <li>Sempre reconcilie sua conta após a importação para identificar eventuais discrepâncias.</li>
+      </ul>
+
+      <footer>
+        <a href="/blog/pt/">← Blog</a>
+        <a href="/">Usar o Conversor →</a>
+      </footer>
+    </div>
+  </body>
+</html>
