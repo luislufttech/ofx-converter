@@ -1,21 +1,12 @@
-/**
- * Converts an XML bank statement to OFX format.
- * Supports generic XML and ISO 20022 camt.053 (Wise, SEPA, etc.).
- */
+import { formatDateNow, buildTransaction, buildOfx } from "./ofxBuilder.js";
 
 function parseDate(dateStr) {
   if (!dateStr) return "";
-  // Remove dashes/slashes and return YYYYMMDD
   const clean = dateStr.replace(/[-/]/g, "");
-  // If already 8 digits, return as-is
   if (/^\d{8}$/.test(clean)) return clean;
-  // Try to parse and format
   const d = new Date(dateStr);
   if (!isNaN(d)) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}${m}${day}`;
+    return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
   }
   return clean;
 }
@@ -63,14 +54,12 @@ export function convertXmlToOfx(xmlString) {
     currency = amtEl?.getAttribute("Ccy") || "USD";
   }
 
-  const now = new Date();
-  const dtNow = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  const dtNow = formatDateNow();
 
   const txnLines = transactions.map((trn, i) => {
     // camt.053 uses CdtDbtInd (CRDT/DBIT) to indicate sign
     const cdtDbt = getText(trn, "CdtDbtInd");
 
-    // Type
     let trntype;
     if (cdtDbt === "DBIT") trntype = "DEBIT";
     else if (cdtDbt === "CRDT") trntype = "CREDIT";
@@ -108,58 +97,8 @@ export function convertXmlToOfx(xmlString) {
 
     const memo = getText(trn, "MEMO", "memo", "Memo", "notes", "Notes") || "";
 
-    return `<STMTTRN>
-<TRNTYPE>${trntype}</TRNTYPE>
-<DTPOSTED>${dtposted}</DTPOSTED>
-<TRNAMT>${trnamt}</TRNAMT>
-<FITID>${fitid}</FITID>
-<NAME>${name}</NAME>
-${memo ? `<MEMO>${memo}</MEMO>` : ""}
-</STMTTRN>`;
+    return buildTransaction({ trntype, dtposted, trnamt, fitid, name, memo });
   });
 
-  const ofx = `OFXHEADER:100
-DATA:OFXSGML
-VERSION:102
-SECURITY:NONE
-ENCODING:UTF-8
-CHARSET:1252
-COMPRESSION:NONE
-OLDFILEUID:NONE
-NEWFILEUID:NONE
-
-<OFX>
-<SIGNONMSGSRSV1>
-<SONRS>
-<STATUS>
-<CODE>0</CODE>
-<SEVERITY>INFO</SEVERITY>
-</STATUS>
-<DTSERVER>${dtNow}</DTSERVER>
-<LANGUAGE>ENG</LANGUAGE>
-</SONRS>
-</SIGNONMSGSRSV1>
-<BANKMSGSRSV1>
-<STMTTRNRS>
-<TRNUID>1001</TRNUID>
-<STATUS>
-<CODE>0</CODE>
-<SEVERITY>INFO</SEVERITY>
-</STATUS>
-<STMTRS>
-<CURDEF>${currency}</CURDEF>
-<BANKACCTFROM>
-<BANKID>${bankId}</BANKID>
-<ACCTID>${acctId}</ACCTID>
-<ACCTTYPE>${acctType}</ACCTTYPE>
-</BANKACCTFROM>
-<BANKTRANLIST>
-${txnLines.join("\n")}
-</BANKTRANLIST>
-</STMTRS>
-</STMTTRNRS>
-</BANKMSGSRSV1>
-</OFX>`;
-
-  return { ofx, transactionCount: transactions.length };
+  return { ofx: buildOfx({ dtNow, currency, bankId, acctId, acctType, txnLines }), transactionCount: transactions.length };
 }

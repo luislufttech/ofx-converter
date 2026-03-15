@@ -11,6 +11,27 @@ const steps = {
   ERROR: "error",
 };
 
+function useStoredToggle(key, a, b) {
+  const [value, setValue] = useState(() => localStorage.getItem(key) || a);
+  const toggle = useCallback(() => {
+    setValue((v) => {
+      const next = v === a ? b : a;
+      localStorage.setItem(key, next);
+      return next;
+    });
+  }, [key, a, b]);
+  return [value, toggle];
+}
+
+function DocIcon({ className }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
 export default function App() {
   const [step, setStep] = useState(steps.IDLE);
   const [fileName, setFileName] = useState("");
@@ -20,27 +41,11 @@ export default function App() {
   const [txnCount, setTxnCount] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [dragOver, setDragOver] = useState(false);
-  const [lang, setLang] = useState(() => localStorage.getItem("lang") || "en");
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+  const [lang, toggleLang] = useStoredToggle("lang", "en", "pt");
+  const [theme, toggleTheme] = useStoredToggle("theme", "dark", "light");
   const fileInputRef = useRef(null);
 
   const t = translations[lang];
-
-  const toggleLang = () => {
-    setLang((l) => {
-      const next = l === "en" ? "pt" : "en";
-      localStorage.setItem("lang", next);
-      return next;
-    });
-  };
-
-  const toggleTheme = () => {
-    setTheme((t) => {
-      const next = t === "dark" ? "light" : "dark";
-      localStorage.setItem("theme", next);
-      return next;
-    });
-  };
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -78,26 +83,15 @@ export default function App() {
     [t]
   );
 
-  const handleFileChange = (e) => {
-    loadFile(e.target.files[0]);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    loadFile(e.dataTransfer.files[0]);
-  };
+  const handleFileChange = (e) => loadFile(e.target.files[0]);
+  const handleDrop = (e) => { e.preventDefault(); setDragOver(false); loadFile(e.dataTransfer.files[0]); };
 
   const handleConvert = async () => {
     setStep(steps.CONVERTING);
     try {
-      let result;
-      if (fileType === "xml") {
-        await new Promise((r) => setTimeout(r, 400));
-        result = convertXmlToOfx(fileContent);
-      } else {
-        result = await convertPdfToOfx(fileContent);
-      }
+      const result = fileType === "xml"
+        ? (await new Promise((r) => setTimeout(r, 400)), convertXmlToOfx(fileContent))
+        : await convertPdfToOfx(fileContent);
       setOfxResult(result.ofx);
       setTxnCount(result.transactionCount);
       setStep(steps.DONE);
@@ -128,14 +122,17 @@ export default function App() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const faqs = [
+    { q: t.faq1q, a: t.faq1a },
+    { q: t.faq2q, a: t.faq2a },
+    { q: t.faq3q, a: t.faq3a },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col">
       <header className="border-b border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur px-6 py-3 flex items-center gap-3">
         <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+          <DocIcon className="w-4 h-4 text-white" />
         </div>
         <span className="text-slate-900 dark:text-white font-semibold text-sm tracking-tight">OFX Converter</span>
         <div className="ml-auto flex items-center gap-3">
@@ -171,10 +168,7 @@ export default function App() {
           {/* Hero */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 shadow-lg mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <DocIcon className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">OFX Converter</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">{t.tagline}</p>
@@ -193,13 +187,7 @@ export default function App() {
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xml,.pdf"
-                className="hidden"
-                onChange={handleFileChange}
-              />
+              <input ref={fileInputRef} type="file" accept=".xml,.pdf" className="hidden" onChange={handleFileChange} />
 
               {step === steps.IDLE && (
                 <>
@@ -333,18 +321,12 @@ export default function App() {
             <section>
               <h2 className="text-slate-800 dark:text-slate-200 font-semibold text-base mb-3">{t.faqTitle}</h2>
               <div className="space-y-4">
-                <div>
-                  <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{t.faq1q}</h3>
-                  <p>{t.faq1a}</p>
-                </div>
-                <div>
-                  <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{t.faq2q}</h3>
-                  <p>{t.faq2a}</p>
-                </div>
-                <div>
-                  <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{t.faq3q}</h3>
-                  <p>{t.faq3a}</p>
-                </div>
+                {faqs.map(({ q, a }) => (
+                  <div key={q}>
+                    <h3 className="text-slate-700 dark:text-slate-300 font-medium mb-1">{q}</h3>
+                    <p>{a}</p>
+                  </div>
+                ))}
               </div>
             </section>
           </div>

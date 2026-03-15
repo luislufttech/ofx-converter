@@ -12,6 +12,7 @@
  */
 
 import * as pdfjsLib from "pdfjs-dist";
+import { formatDateNow, buildTransaction, buildOfx } from "./ofxBuilder.js";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -99,7 +100,6 @@ function findAmountsInLine(line) {
 function extractDesc(line, txnAmount) {
   const idx = line.lastIndexOf(txnAmount);
   let desc = idx > 0 ? line.slice(0, idx).trim() : line;
-  // Strip Wise-style table header words that may have merged into the first line
   desc = desc
     .replace(/^(Description\s+)?(Incoming\s+)?(Outgoing\s+)?(Amount\s+)?/i, "")
     .trim();
@@ -134,11 +134,7 @@ function extractTransactionsFromText(text) {
 
       if (desc.length >= 2) {
         usedLines.add(i);
-        transactions.push({
-          date: dateInfo.date,
-          amount: normalizeAmount(lastAmount),
-          name: desc,
-        });
+        transactions.push({ date: dateInfo.date, amount: normalizeAmount(lastAmount), name: desc });
       }
       continue;
     }
@@ -155,28 +151,18 @@ function extractTransactionsFromText(text) {
       const prevAmounts = findAmountsInLine(lines[j]);
       if (prevAmounts.length === 0) continue;
 
-      // Last amount = running balance (ignore).
-      // Second-to-last = actual transaction amount.
+      // Last amount = running balance (ignore). Second-to-last = actual transaction amount.
       const txnAmount =
         prevAmounts.length >= 2
           ? prevAmounts[prevAmounts.length - 2]
           : prevAmounts[0];
 
-      // Description: text from the amounts line before the txn amount,
-      // plus any continuation lines between j+1 and i-1.
       const descFromAmtsLine = extractDesc(lines[j], txnAmount);
       const descMiddle = lines.slice(j + 1, i).join(" ").trim();
-      const desc =
-        [descFromAmtsLine, descMiddle].filter(Boolean).join(" ") || "Transaction";
+      const desc = [descFromAmtsLine, descMiddle].filter(Boolean).join(" ") || "Transaction";
 
-      // Mark all lines from the amounts line through the date line as used
       for (let k = j; k <= i; k++) usedLines.add(k);
-
-      transactions.push({
-        date: dateInfo.date,
-        amount: normalizeAmount(txnAmount),
-        name: desc,
-      });
+      transactions.push({ date: dateInfo.date, amount: normalizeAmount(txnAmount), name: desc });
       foundBackward = true;
       break;
     }
@@ -184,7 +170,6 @@ function extractTransactionsFromText(text) {
     if (foundBackward) continue;
 
     // ── Fallback: look at the NEXT line for amounts ────────────────────────
-    // Handles formats where amounts follow the date line.
     const nextLine = i + 1 < lines.length ? lines[i + 1] : null;
     if (!nextLine) continue;
 
@@ -193,7 +178,6 @@ function extractTransactionsFromText(text) {
 
     const txnAmount = amountsOnNext[0];
 
-    // Description from lines before the date line
     const descLines = [];
     for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
       if (usedLines.has(j) || findDateInLine(lines[j])) break;
@@ -204,11 +188,7 @@ function extractTransactionsFromText(text) {
     if (desc.length >= 2) {
       usedLines.add(i);
       usedLines.add(i + 1);
-      transactions.push({
-        date: dateInfo.date,
-        amount: normalizeAmount(txnAmount),
-        name: desc,
-      });
+      transactions.push({ date: dateInfo.date, amount: normalizeAmount(txnAmount), name: desc });
     }
   }
 
@@ -258,67 +238,20 @@ export async function convertPdfToOfx(arrayBuffer) {
     );
   }
 
-  const now = new Date();
-  const dtNow = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  const dtNow = formatDateNow();
 
   const txnLines = transactions.map((t, i) => {
     const amount = parseFloat(t.amount);
     const trntype = isNaN(amount) || amount >= 0 ? "CREDIT" : "DEBIT";
-    const safeName = t.name.replace(
-      /[<>&]/g,
-      (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c])
-    );
-    return `<STMTTRN>
-<TRNTYPE>${trntype}</TRNTYPE>
-<DTPOSTED>${t.date || dtNow}</DTPOSTED>
-<TRNAMT>${t.amount}</TRNAMT>
-<FITID>${dtNow}${String(i + 1).padStart(4, "0")}</FITID>
-<NAME>${safeName}</NAME>
-</STMTTRN>`;
+    const name = t.name.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+    return buildTransaction({
+      trntype,
+      dtposted: t.date || dtNow,
+      trnamt: t.amount,
+      fitid: `${dtNow}${String(i + 1).padStart(4, "0")}`,
+      name,
+    });
   });
 
-  const ofx = `OFXHEADER:100
-DATA:OFXSGML
-VERSION:102
-SECURITY:NONE
-ENCODING:UTF-8
-CHARSET:1252
-COMPRESSION:NONE
-OLDFILEUID:NONE
-NEWFILEUID:NONE
-
-<OFX>
-<SIGNONMSGSRSV1>
-<SONRS>
-<STATUS>
-<CODE>0</CODE>
-<SEVERITY>INFO</SEVERITY>
-</STATUS>
-<DTSERVER>${dtNow}</DTSERVER>
-<LANGUAGE>ENG</LANGUAGE>
-</SONRS>
-</SIGNONMSGSRSV1>
-<BANKMSGSRSV1>
-<STMTTRNRS>
-<TRNUID>1001</TRNUID>
-<STATUS>
-<CODE>0</CODE>
-<SEVERITY>INFO</SEVERITY>
-</STATUS>
-<STMTRS>
-<CURDEF>USD</CURDEF>
-<BANKACCTFROM>
-<BANKID>000000000</BANKID>
-<ACCTID>000000000</ACCTID>
-<ACCTTYPE>CHECKING</ACCTTYPE>
-</BANKACCTFROM>
-<BANKTRANLIST>
-${txnLines.join("\n")}
-</BANKTRANLIST>
-</STMTRS>
-</STMTTRNRS>
-</BANKMSGSRSV1>
-</OFX>`;
-
-  return { ofx, transactionCount: transactions.length };
+  return { ofx: buildOfx({ dtNow, txnLines }), transactionCount: transactions.length };
 }
